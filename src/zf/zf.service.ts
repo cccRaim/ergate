@@ -67,7 +67,7 @@ export class ZfService {
     });
   }
 
-  public login = async (user, retryCount = 0) => {
+  public login = async (user, retryCount = 1) => {
     // 获取加密密码的key
     const publicKey: PublicKeyType = await this.httpGet(user, `${this.PUBLIC_KEY_URI}?time=${new Date().getTime()}`);
     // 加密密码
@@ -87,8 +87,8 @@ export class ZfService {
       yzm: captcha,
     }));
     if (typeof loginResponse === 'string' && loginResponse.match('验证码输入错误！')) {
-      if (retryCount < 3) {
-        return await this.login(user, retryCount + 1);
+      if (retryCount > 0) {
+        return await this.login(user, retryCount - 1);
       } else {
         return false;
       }
