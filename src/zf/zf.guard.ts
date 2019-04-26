@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { CanActivate, ExecutionContext, HttpException, Injectable, HttpStatus } from '@nestjs/common';
 import { Observable } from 'rxjs';
 
 @Injectable()
@@ -9,7 +9,7 @@ export class ZfGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const { username, password } = request.query
     if (!username || !password) {
-      return false;
+      throw new HttpException('参数错误', 1);
     }
     return true;
   }
