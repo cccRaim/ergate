@@ -19,6 +19,7 @@ export class ZfService {
   private SCORE_URI: string = 'cjcx/cjcx_cxDgXscj.html?doType=query';
   private TIMETABLE_URI: string = 'kbcx/xskbcx_cxXsKb.html?gnmkdm=N2151';
   private EXAM_URI: string = '/kwgl/kscx_cxXsksxxIndex.html?doType=query&gnmkdm=N358105';
+  private FREE_ROOM_URI: string = '/kwgl/kscx_cxXsksxxIndex.html?doType=query&gnmkdm=N358105';
 
   private headers: object = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
@@ -117,6 +118,37 @@ export class ZfService {
       'kc': '',
       'ksrq': '',
       'queryModel.showCount': 150,
+    }));
+  }
+
+  public async getFreeRoom(user: ZfUser, { year, term, area, weekdays, weeks, lessons }) {
+    return this.httpPost(user, this.FREE_ROOM_URI, querystring.stringify({
+      'xnm': year,
+      'xqm': term,
+      'xqh_id': area, // 02 校区id
+      'xqj': weekdays, // 1,2,3,4,5,6,7 星期几
+      'zcd': weeks, // 262143 周次，所选的周的2的次方 之和
+      'jcd': lessons, // 4095 节次，所选的节的2的次方 之和
+      // 以下为默认字段
+      'fwzt': 'cx',
+      'jyfs': 0,
+      '_search': false,
+      'time': 1,
+      'nd': new Date().getTime(),
+      // 以下为置空字段
+      'cdlb_id': '',
+      'cdejlb_id': '',
+      'qszws': '',
+      'jszws': '',
+      'cdmc': '',
+      'qssd': '',
+      'lh': '',
+      'jssd': '',
+      'qssj': '',
+      'jssj': '',
+      'cdjylx': '',
+
+      'queryModel.showCount' : 1500,
     }));
   }
 
