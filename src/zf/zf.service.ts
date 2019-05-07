@@ -1,5 +1,6 @@
 import { HttpService, Injectable } from '@nestjs/common';
 import { hex2b64, b64tohex } from './rsa/base64';
+import { ZfUser } from './zf.user';
 import * as RSAKey from './rsa/rsa';
 import * as FormData from 'form-data';
 import * as querystring from 'querystring';
@@ -16,6 +17,8 @@ export class ZfService {
   private KAPTCHA_URI: string = '/kaptcha';
   private LOGIN_URI: string = '/xtgl/login_slogin.html';
   private SCORE_URI: string = 'cjcx/cjcx_cxDgXscj.html?doType=query';
+  private TIMETABLE_URI: string = 'kbcx/xskbcx_cxXsKb.html?gnmkdm=N2151';
+  private EXAM_URI: string = '/kwgl/kscx_cxXsksxxIndex.html?doType=query&gnmkdm=N358105';
 
   private headers: object = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
@@ -29,7 +32,15 @@ export class ZfService {
 
   constructor(private readonly httpService: HttpService) {}
 
-  public httpGet = (user, url: string, config: any = {}) => {
+  public httpGet = (user: ZfUser, url: string, config: any = {}) => {
+    return this.httpFetch('get', user, url, null, config);
+  }
+
+  public httpPost = (user: ZfUser, url: string, data: any = null, config: any = {}) => {
+    return this.httpFetch('post', user, url, data, config);
+  }
+
+  public httpFetch = (type: string, user: ZfUser, url: string, data: any = null, config: any = {}) => {
     const headers = config.headers || {};
     const niceConfig = ({
       ...config,
@@ -42,32 +53,16 @@ export class ZfService {
     if (!config.baseURL) {
       niceConfig.baseURL = this.baseURL;
     }
-    return this.httpService.get(url, niceConfig).toPromise().then(response => {
-      user && user.setCookie(response.headers['set-cookie']);
+    const httpXHR = type === 'post' ? this.httpService.post(url, data, niceConfig) : this.httpService.get(url, niceConfig);
+    return httpXHR.toPromise().then(response => {
+      if (user) {
+        user.setCookie(response.headers['set-cookie']);
+      }
       return response.data;
     });
   }
 
-  public httpPost = (user, url: string, data: any = null, config: any = {}) => {
-    const headers = config.headers || {};
-    const niceConfig = ({
-      ...config,
-      headers: {
-        ...this.headers,
-        ...headers,
-        Cookie: user ? user.getCookieString() : null,
-      },
-    });
-    if (!config.baseURL) {
-      niceConfig.baseURL = this.baseURL;
-    }
-    return this.httpService.post(url, data, niceConfig).toPromise().then(response => {
-      user && user.setCookie(response.headers['set-cookie']);
-      return response.data;
-    });
-  }
-
-  public login = async (user, retryCount = 1) => {
+  public login = async (user: ZfUser, retryCount = 1) => {
     // 获取加密密码的key
     const publicKey: PublicKeyType = await this.httpGet(user, `${this.PUBLIC_KEY_URI}?time=${new Date().getTime()}`);
     // 加密密码
@@ -97,10 +92,30 @@ export class ZfService {
     }
   }
 
-  public async getScore(user, year, term) {
+  public async getScore(user: ZfUser, year, term) {
     return this.httpPost(user, this.SCORE_URI, querystring.stringify({
       'xnm': year,
       'xqm': term,
+      'queryModel.showCount': 150,
+    }));
+  }
+
+  public async getTimetable(user: ZfUser, year, term) {
+    return this.httpPost(user, this.TIMETABLE_URI, querystring.stringify({
+      'xnm': year,
+      'xqm': term,
+      'queryModel.showCount': 150,
+    }));
+  }
+
+  public async getExam(user: ZfUser, year, term) {
+    return this.httpPost(user, this.EXAM_URI, querystring.stringify({
+      'xnm': year,
+      'xqm': term,
+      'ksmcdmb_id': '',
+      'kch': '',
+      'kc': '',
+      'ksrq': '',
       'queryModel.showCount': 150,
     }));
   }
@@ -111,6 +126,7 @@ export class ZfService {
     return this.httpPost(null, '/yzm', form, {
       baseURL: 'http://127.0.0.1:5000',
       headers: form.getHeaders(),
+      timeout: 5000,
     })
       .then(res => res.data);
 

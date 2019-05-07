@@ -3,7 +3,14 @@ import { ZfService } from './zf.service';
 import { ZfController } from './zf.controller';
 
 @Module({
-  imports: [HttpModule],
+  imports: [HttpModule.register({
+    timeout: 15000,
+    maxRedirects: 5,
+    // proxy: {
+    //   host: '127.0.0.1',
+    //   port: 8888,
+    // },
+  })],
   controllers: [ZfController],
   providers: [ZfService],
 })
