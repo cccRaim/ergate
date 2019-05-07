@@ -17,9 +17,10 @@ export class ZfService {
   private KAPTCHA_URI: string = '/kaptcha';
   private LOGIN_URI: string = '/xtgl/login_slogin.html';
   private SCORE_URI: string = 'cjcx/cjcx_cxDgXscj.html?doType=query';
+  private SCORE_DETAIL_URI: string = 'cjcx/cjcx_cxXsKccjList.html';
   private TIMETABLE_URI: string = 'kbcx/xskbcx_cxXsKb.html?gnmkdm=N2151';
   private EXAM_URI: string = '/kwgl/kscx_cxXsksxxIndex.html?doType=query&gnmkdm=N358105';
-  private FREE_ROOM_URI: string = '/kwgl/kscx_cxXsksxxIndex.html?doType=query&gnmkdm=N358105';
+  private FREE_ROOM_URI: string = '/cdjy/cdjy_cxKxcdlb.html?doType=query&gnmkdm=N2155';
 
   private headers: object = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
@@ -95,6 +96,14 @@ export class ZfService {
 
   public async getScore(user: ZfUser, year, term) {
     return this.httpPost(user, this.SCORE_URI, querystring.stringify({
+      'xnm': year,
+      'xqm': term,
+      'queryModel.showCount': 150,
+    }));
+  }
+
+  public async getScoreDetail(user: ZfUser, year, term) {
+    return this.httpPost(user, this.SCORE_DETAIL_URI, querystring.stringify({
       'xnm': year,
       'xqm': term,
       'queryModel.showCount': 150,
