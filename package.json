@@ -23,6 +23,8 @@
     "@nestjs/common": "^6.1.1",
     "@nestjs/core": "^6.1.1",
     "@nestjs/platform-express": "^6.1.1",
+    "cheerio": "^1.0.0-rc.3",
+    "gbk.js": "^0.2.4",
     "querystring": "^0.2.0",
     "reflect-metadata": "^0.1.12",
     "rimraf": "^2.6.2",

@@ -4,9 +4,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ZfModule } from './zf/zf.module';
 import { HttpExceptionFilter } from './middleware/http-exception.filter';
+import { CardModule } from './card/card.module';
 
 @Module({
-  imports: [HttpModule, ZfModule],
+  imports: [HttpModule, ZfModule, CardModule],
   controllers: [AppController],
   providers: [
     AppService,
