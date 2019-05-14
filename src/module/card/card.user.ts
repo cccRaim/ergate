@@ -1,4 +1,4 @@
-import { User } from '../interface/user.interface';
+import { User } from '../../interface/user.interface';
 
 export class CardUser implements User {
   private cookies = {};

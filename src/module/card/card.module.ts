@@ -1,7 +1,7 @@
 import { Module, HttpModule } from '@nestjs/common';
 import { CardController } from './card.controller';
 import { CardService } from './card.service';
-import { Request } from '../provider/request';
+import { Request } from '../../provider/request';
 
 @Module({
   imports: [HttpModule.register({

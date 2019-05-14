@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CardUser } from './card.user';
 import * as cheerio from 'cheerio';
-import { Request } from '../provider/request';
+import { Request } from '../../provider/request';
 
 @Injectable()
 export class CardService {
