@@ -43,4 +43,44 @@ export class CardService {
       name,
     };
   }
+
+  public async getTodayRecord(user: CardUser) {
+    const document = await this.httpService.get(user, this.TODAY_DETAIL_URI);
+    const $ = cheerio.load(document, {
+      xml: { normalizeWhitespace: true },
+    });
+    const records = $('#dgShow tr:not([class="dg_header"])').map((i, el) => {
+      const [
+        serialNo,
+        posAccount,
+        cardType,
+        businessType,
+        posName,
+        posLocation,
+        posEndPoint,
+        businessAmount,
+        businessTime,
+        walletName,
+        cardBalance,
+      ] = $(el).find('td').map((i, td) => {
+        return $(td).text();
+      }).get();
+      return {
+        serialNo,
+        posAccount,
+        cardType,
+        businessType,
+        posName,
+        posLocation,
+        posEndPoint,
+        businessAmount,
+        businessTime,
+        walletName,
+        cardBalance,
+      };
+    }).get();
+    return {
+      records,
+    };
+  }
 }
