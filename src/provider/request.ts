@@ -15,7 +15,6 @@ export class Request implements IRequest {
   constructor(private readonly baseURL: string = '') {}
 
   private headers: object = {
-    'Host': '172.16.10.102',
     'Cache-Control': 'max-age=0',
     'Origin': 'https://172.16.10.102',
     'Upgrade-Insecure-Requests': '1',
@@ -23,7 +22,6 @@ export class Request implements IRequest {
       'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36',
     'Accept':
       'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
-    'Referer': 'https://172.16.10.102/',
     'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
     // 'language': 'zh-cn,zh;q=0.8,en-us;q=0.5,en;q=0.3',
     // 'Connection': 'keep-alive',
@@ -56,6 +54,7 @@ export class Request implements IRequest {
     if (!config.baseURL) {
       url = path.join(this.baseURL, url);
     }
+    const headers = Object.assign({}, this.headers, config.headers)
     return new Promise((resolve, reject) => {
       let curl = `curl -x 127.0.0.1:8888 ${url} -k -D -`;
       if (type === 'post' && data && typeof data === 'object') {
@@ -65,12 +64,12 @@ export class Request implements IRequest {
             .join('&') +
           '"';
       }
-      curl += ' ' + Object.keys(this.headers)
+      curl += ' ' + Object.keys(headers)
         .map(key => {
           if (key === 'User-Agent') {
-            return `-A "${this.headers[key]}"`;
+            return `-A "${headers[key]}"`;
           }
-          return `-H "${key}: ${this.headers[key]}"`;
+          return `-H "${key}: ${headers[key]}"`;
         })
         .join(' ');
       curl += ` -H "Cookie: ${user.getCookieString()}"`;
