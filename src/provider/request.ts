@@ -12,12 +12,12 @@ interface IRequest {
 
 @Injectable()
 export class Request implements IRequest {
-  constructor(private readonly baseURL: string = '') {}
+  constructor(private readonly baseURL: string = '', private readonly iconv: boolean = false, private readonly type: string = '') {}
 
   private headers: object = {
     'Cache-Control': 'max-age=0',
-    'Origin': 'https://172.16.10.102',
-    'Upgrade-Insecure-Requests': '1',
+    // 'Origin': 'https://172.16.10.102',
+    // 'Upgrade-Insecure-Requests': '1',
     'User-Agent':
       'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36',
     'Accept':
@@ -48,19 +48,30 @@ export class Request implements IRequest {
     data: any = null,
     config: any = {},
   ) => {
+    return this.curl(type, user, url, data, config);
+  }
+
+  public curl = (
+    type: string,
+    user: User,
+    url: string,
+    data: any = null,
+    config: any = {},
+  ) => {
     if (user) {
       data = Object.assign({}, user.getNetState(), data);
     }
     if (!config.baseURL) {
       url = path.join(this.baseURL, url);
     }
-    const headers = Object.assign({}, this.headers, config.headers)
+    const headers = Object.assign({}, this.headers, config.headers);
     return new Promise((resolve, reject) => {
       let curl = `curl -x 127.0.0.1:8888 ${url} -k -D -`;
       if (type === 'post' && data && typeof data === 'object') {
+        const encode = this.iconv ? GBK.URI.encodeURIComponent : encodeURIComponent;
         curl += ' -X POST -d "' +
           Object.keys(data)
-            .map(key => `${GBK.URI.encodeURIComponent(key)}=${GBK.URI.encodeURIComponent(data[key])}`)
+            .map(key => `${encode(key)}=${encode(data[key])}`)
             .join('&') +
           '"';
       }
@@ -73,11 +84,24 @@ export class Request implements IRequest {
         })
         .join(' ');
       curl += ` -H "Cookie: ${user.getCookieString()}"`;
-      child_process.exec(`${curl} | iconv -f gb2312 -t utf-8`, (err, stdout, stderr) => {
-        const contentChunk = stdout.split('\r\n\r\n').filter(
-          i => !i.match('Connection established') && !i.match('HTTP/1.1 100 Continue'),
-        );
-        const [ headerString, ...body ] = contentChunk;
+      if (this.iconv) {
+        curl += ' | iconv -f gb2312 -t utf-8';
+      }
+      child_process.exec(`${curl}`, (err, stdout, stderr) => {
+        const contentFragment = stdout.split('\r\n')
+        let headerIndex = 0;
+        let spliceIndex = 0;
+        for (let i = 0; i < contentFragment.length; i++) {
+          if (contentFragment[i].match(/^HTTP\/1\.1 \d+ \w+/)) {
+            headerIndex = i;
+          }
+          if (!contentFragment[i] && !contentFragment[i + 1].match(/HTTP\/1.1 \d+ \w+/)) {
+            spliceIndex = i;
+            break;
+          }
+        }
+        const headerString = contentFragment.slice(headerIndex, spliceIndex).join('\n');
+        const body = contentFragment.slice(spliceIndex).join();
         const setCookiesArray = headerString.match(/Set-Cookie: [^\n\r]+/g);
         if (setCookiesArray) {
           const setCookies = setCookiesArray.map(setCookie => {
@@ -89,8 +113,15 @@ export class Request implements IRequest {
           }
         }
         if (user) {
-          const $ = cheerio.load(body.join(''));
-          const netStateList = ['__LASTFOCUS', '__VIEWSTATE', '__EVENTTARGET', '__EVENTARGUMENT', '__EVENTVALIDATION'];
+          const $ = cheerio.load(body);
+          const netStateList = [
+            '__LASTFOCUS',
+            '__VIEWSTATE',
+            '__EVENTTARGET',
+            '__EVENTARGUMENT',
+            '__EVENTVALIDATION',
+            '__VIEWSTATEGENERATOR',
+          ];
           const netState = netStateList.reduce((obj, key) => {
             const el = $(`input[type=hidden][name=${key}]`);
             if (el && el.attr('name')) {
@@ -102,7 +133,7 @@ export class Request implements IRequest {
             user.setNetState(netState);
           }
         }
-        resolve(body.join(''));
+        resolve(body);
       });
     });
   }

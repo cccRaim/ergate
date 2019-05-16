@@ -29,7 +29,7 @@ export class CardService {
       'UserLogin:ImageButton1.x': 40,
       'UserLogin:ImageButton1.y': 16,
     });
-    return !data;
+    return !!data.includes('/Cardholder/Cardholder.aspx');
   }
 
   public async getBalance(user: CardUser) {
