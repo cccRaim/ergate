@@ -6,6 +6,7 @@ import * as cheerio from 'cheerio';
 @Injectable()
 export class LibraryService {
   private LOGIN_URI = 'login.aspx';
+  private HOME_URI = 'Default.aspx';
   private BORROW_URI = 'Borrowing.aspx';
 
   constructor(private readonly httpService: Request) {}
@@ -21,6 +22,20 @@ export class LibraryService {
     });
 
     return !!data.includes('/Default.aspx');
+  }
+
+  public async getInfo(user: LibraryUser) {
+    const document = await this.httpService.get(user, this.HOME_URI);
+
+    const $ = cheerio.load(document, {
+      xml: { normalizeWhitespace: true },
+    });
+
+    return {
+      borrowCount: $('#ctl00_ContentPlaceHolder1_LBnowborrow').text(),
+      overdueCount: $('#ctl00_ContentPlaceHolder1_LBcq').text(),
+      debetCount: $('#ctl00_ContentPlaceHolder1_LBqk').text(),
+    };
   }
 
   public async getBorrow(user: LibraryUser, isNext = false) {
@@ -71,4 +86,5 @@ export class LibraryService {
 
     return hasNext ? list.concat((await this.getBorrow(user, true)) || []) : list;
   }
+
 }

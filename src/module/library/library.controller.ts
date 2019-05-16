@@ -14,7 +14,10 @@ export class LibraryController {
     }
     return {
       code: 0,
-      data: await this.libraryService.getBorrow(user),
+      data: {
+        info: await this.libraryService.getInfo(user),
+        borrowList: await this.libraryService.getBorrow(user),
+      },
     };
   }
 }
