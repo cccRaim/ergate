@@ -20,4 +20,13 @@ export class LibraryController {
       },
     };
   }
+
+  @Get('search')
+  async search(@Query('wd') wd, @Query('page') page) {
+    const user = new LibraryUser(0, 0);
+    return {
+      code: 0,
+      data: await this.libraryService.search(user, wd, page),
+    };
+  }
 }

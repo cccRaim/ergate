@@ -101,7 +101,7 @@ export class Request implements IRequest {
           }
         }
         const headerString = contentFragment.slice(headerIndex, spliceIndex).join('\n');
-        const body = contentFragment.slice(spliceIndex).join();
+        const body = contentFragment.slice(spliceIndex).join('');
         const setCookiesArray = headerString.match(/Set-Cookie: [^\n\r]+/g);
         if (setCookiesArray) {
           const setCookies = setCookiesArray.map(setCookie => {

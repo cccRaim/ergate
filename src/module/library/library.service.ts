@@ -8,6 +8,7 @@ export class LibraryService {
   private LOGIN_URI = 'login.aspx';
   private HOME_URI = 'Default.aspx';
   private BORROW_URI = 'Borrowing.aspx';
+  private SEARCH_URI = 'Search.aspx';
 
   constructor(private readonly httpService: Request) {}
 
@@ -35,6 +36,82 @@ export class LibraryService {
       borrowCount: $('#ctl00_ContentPlaceHolder1_LBnowborrow').text(),
       overdueCount: $('#ctl00_ContentPlaceHolder1_LBcq').text(),
       debetCount: $('#ctl00_ContentPlaceHolder1_LBqk').text(),
+    };
+  }
+
+  public async search(user: LibraryUser, wd: string, page = null) {
+    await this.httpService.get(user, this.SEARCH_URI);
+    const postData: any = {
+      ctl00$ContentPlaceHolder1$TBSerchWord: wd,
+      __ASYNCPOST: true,
+      __VIEWSTATEENCRYPTED: '',
+    };
+
+    const searchData = {
+      'ctl00$ScriptManager1': 'ctl00$ContentPlaceHolder1$UpdatePanel1|ctl00$ContentPlaceHolder1$SearchButton',
+      'ctl00$ContentPlaceHolder1$SearchButton.x': '23',
+      'ctl00$ContentPlaceHolder1$SearchButton.y': '21',
+    };
+
+    const jumpData = {
+      ctl00$ScriptManager1: 'ctl00$ContentPlaceHolder1$UpdatePanel1|ctl00$ContentPlaceHolder1$AspNetPager1',
+      ctl00$ContentPlaceHolder1$AspNetPager1_input: page,
+      __EVENTTARGET: 'ctl00$ContentPlaceHolder1$AspNetPager1',
+    };
+
+    if (page) {
+      const initDocument = await this.httpService.post(user, this.SEARCH_URI, Object.assign({}, postData, searchData));
+      const initData = {}
+      initDocument.match(/\d+\|hiddenField\|([\w\W]*?)\|([\w\W]*?)\|/g).forEach(item => {
+        const [id, hiddenField, key, value ] = item.split('|');
+        initData[key] = value;
+      })
+      Object.assign(postData, initData, jumpData);
+    } else {
+      Object.assign(postData, searchData);
+    }
+
+    const document = (await this.httpService.post(user, this.SEARCH_URI, postData));
+
+    const $ = cheerio.load(document);
+
+    const total = +($('#ctl00_ContentPlaceHolder1_Label13').text().replace(/\D/g, '')) || 0;
+    const totalPages = +$('select option').last().val() || 0;
+    const currentPage = +$('#ctl00_ContentPlaceHolder1_AspNetPager1 span').text() || 1;
+
+    const list =  $('#ctl00_ContentPlaceHolder1_GridView1 tr table:not([border="0"])').map((i, el) => {
+      const title = $(el).find('tr a').text();
+      const id = $(el).find('tr a').attr('href').replace(/\D/g, '');
+      const [
+        series,
+        callNumber,
+        author,
+        publisher,
+        publishDate,
+        topic,
+        language,
+      ] = $(el).find('tr td span[id]').map((index, span) => {
+        return $(span).text();
+      }).get();
+      return {
+        id,
+        title,
+        series,
+        callNumber,
+        author,
+        publisher,
+        publishDate,
+        topic,
+        language,
+      };
+    }).get() || [];
+
+    return {
+      total,
+      page: currentPage || 1,
+      limit: 8,
+      totalPages,
+      list,
     };
   }
 
