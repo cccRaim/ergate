@@ -48,26 +48,27 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
     - 空教室
 
 - 图书馆
-    - 借阅查询
+    - 借阅查询/个人借阅查询
     - 图书查询
+    - 图书详情查询
 
 - 一卡通
     - 余额查询
-    - 账单查询
+    - 今日账单查询
+    - 历史账单查询
 
 ## 架构
 - 正方教务
     - 基本登录逻辑
     - 账号密码加密模块
-    - 其余模块依赖注入
+    - 验证码识别结果获取
+    - httpService注入和包装
 
 - 图书馆
     - 基本登录逻辑
-    - viewstate状态包装
-    - 其他模块依赖注入
+    - curl模块注入/viewstate状态包装
 
 - 一卡通
     - 基本登录逻辑
-    - viewstate状态包装
-    - 其他模块依赖注入
+    - curl模块注入/viewstate状态包装
 
