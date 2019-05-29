@@ -1,7 +1,7 @@
 import { HttpService, Injectable } from '@nestjs/common';
 import { hex2b64, b64tohex } from './rsa/base64';
 import { ZfUser } from './zf.user';
-import * as RSAKey from './rsa/rsa';
+import RSAKey from './rsa/rsa';
 import * as FormData from 'form-data';
 import * as querystring from 'querystring';
 

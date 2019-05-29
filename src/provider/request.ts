@@ -95,7 +95,7 @@ export class Request implements IRequest {
           if (contentFragment[i].match(/^HTTP\/1\.1 \d+ \w+/)) {
             headerIndex = i;
           }
-          if (!contentFragment[i] && !contentFragment[i + 1].match(/HTTP\/1.1 \d+ \w+/)) {
+          if (!contentFragment[i] && contentFragment[i + 1] && !contentFragment[i + 1].match(/HTTP\/1.1 \d+ \w+/)) {
             spliceIndex = i;
             break;
           }

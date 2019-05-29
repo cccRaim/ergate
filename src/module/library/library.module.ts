@@ -7,7 +7,7 @@ import { Request } from '../../provider/request';
   controllers: [LibraryController],
   providers: [
     LibraryService,
-    { provide: Request, useValue: new Request('http://210.32.205.60/') },
+    { provide: Request, useValue: new Request('http://210.32.205.60') },
   ],
 })
 export class LibraryModule {}
