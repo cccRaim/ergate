@@ -66,7 +66,7 @@ export class Request implements IRequest {
     }
     const headers = Object.assign({}, this.headers, config.headers);
     return new Promise((resolve, reject) => {
-      let curl = `curl -x 127.0.0.1:8888 ${url} -k -D -`;
+      let curl = `curl ${url} -k -D -`;
       if (type === 'post' && data && typeof data === 'object') {
         const encode = this.iconv ? GBK.URI.encodeURIComponent : encodeURIComponent;
         curl += ' -X POST -d "' +

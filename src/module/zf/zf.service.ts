@@ -165,7 +165,7 @@ export class ZfService {
     const form = new FormData();
     form.append('img_base64', `data:image/jpeg;base64,${base64String}`);
     return this.httpPost(null, '/yzm', form, {
-      baseURL: 'http://127.0.0.1:5000',
+      baseURL: 'http://172.16.32.50',
       headers: form.getHeaders(),
       timeout: 5000,
     })
