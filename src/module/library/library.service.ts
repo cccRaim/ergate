@@ -9,6 +9,7 @@ export class LibraryService {
   private HOME_URI = 'Default.aspx';
   private BORROW_URI = 'Borrowing.aspx';
   private SEARCH_URI = 'Search.aspx';
+  private BOOK_URI = 'Book.aspx';
 
   constructor(private readonly httpService: Request) {}
 
@@ -36,6 +37,70 @@ export class LibraryService {
       borrowCount: $('#ctl00_ContentPlaceHolder1_LBnowborrow').text(),
       overdueCount: $('#ctl00_ContentPlaceHolder1_LBcq').text(),
       debetCount: $('#ctl00_ContentPlaceHolder1_LBqk').text(),
+    };
+  }
+
+  public async getBookInfo(user: LibraryUser, id: string) {
+    const document = await this.httpService.get(user, `${this.BOOK_URI}?id=${id}`);
+
+    const $ = cheerio.load(document);
+
+    const [
+      title,
+      series,
+      author,
+      ISBN,
+      callNumber,
+      callType,
+      price,
+      publishLocation,
+      topic,
+      type,
+      publishDate,
+      publisher,
+    ] = $('#ctl00_ContentPlaceHolder1_DetailsView1 tr td span[id]').map((index, span) => {
+      return $(span).text();
+    }).get();
+
+    const collections = $('#ctl00_ContentPlaceHolder1_GridView1 tr:not([align="center"])').map((index, tr) => {
+      const [
+        collectionLocation,
+        barcode,
+        collectionCode,
+        borrowDate,
+        returnDate,
+        status,
+      ] = $(tr).find('td').map((i, td) => {
+        return $(td).text().replace(/\s+/g, ' ').trim();
+      }).get();
+      return {
+        collectionLocation,
+        barcode,
+        collectionCode,
+        borrowDate,
+        returnDate,
+        status,
+      };
+    }).get();
+
+    const coverIframe = $('#ctl00_ContentPlaceHolder1_DuXiuImage').attr('src');
+
+    return {
+      id,
+      coverIframe,
+      title,
+      series,
+      author,
+      ISBN,
+      callNumber,
+      callType,
+      price,
+      publishLocation,
+      topic,
+      type,
+      publishDate,
+      publisher,
+      collections,
     };
   }
 
@@ -134,9 +199,7 @@ export class LibraryService {
       }) :
       await this.httpService.get(user, this.BORROW_URI);
 
-    const $ = cheerio.load(document, {
-      xml: { normalizeWhitespace: true },
-    });
+    const $ = cheerio.load(document);
     const hasNext = !!$('input[src="pic/NextPage.png"]').get().length;
     const list =  $('#ctl00_ContentPlaceHolder1_GridView1 tr table:not([border="0"])').map((i, el) => {
       const title = $(el).find('tr a').text();

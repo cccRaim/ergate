@@ -29,4 +29,13 @@ export class LibraryController {
       data: await this.libraryService.search(user, wd, page),
     };
   }
+
+  @Get('book')
+  async book(@Query('id') id) {
+    const user = new LibraryUser(0, 0);
+    return {
+      code: 0,
+      data: await this.libraryService.getBookInfo(user, id),
+    };
+  }
 }
