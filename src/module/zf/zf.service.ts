@@ -12,7 +12,7 @@ interface PublicKeyType {
 
 @Injectable()
 export class ZfService {
-  private baseURL: string = 'http://www.gdjw.zjut.edu.cn/';
+  private baseURL: string = 'http://www.gdjw.zjut.edu.cn/jwglxt';
   private PUBLIC_KEY_URI: string = '/xtgl/login_getPublicKey.html';
   private KAPTCHA_URI: string = '/kaptcha';
   private LOGIN_URI: string = '/xtgl/login_slogin.html';
@@ -166,6 +166,7 @@ export class ZfService {
     form.append('img_base64', `data:image/jpeg;base64,${base64String}`);
     return this.httpPost(null, '/yzm', form, {
       baseURL: 'http://172.16.32.50',
+      // baseURL: 'http://127.0.0.1:5000',
       headers: form.getHeaders(),
       timeout: 5000,
     })
