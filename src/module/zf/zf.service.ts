@@ -12,7 +12,8 @@ interface PublicKeyType {
 
 @Injectable()
 export class ZfService {
-  private baseURL: string = 'http://www.gdjw.zjut.edu.cn/jwglxt';
+  // private baseURL: string = 'http://www.gdjw.zjut.edu.cn/jwglxt';
+  private baseURL: string = 'http://172.16.19.168/';
   private PUBLIC_KEY_URI: string = '/xtgl/login_getPublicKey.html';
   private KAPTCHA_URI: string = '/kaptcha';
   private LOGIN_URI: string = '/xtgl/login_slogin.html';
