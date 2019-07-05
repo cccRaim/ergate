@@ -7,7 +7,7 @@ import { Request } from '../../provider/request';
   controllers: [CardController],
   providers: [
     CardService,
-    { provide: Request, useValue: new Request('https://172.16.10.102', true) },
+    { provide: Request, useValue: new Request('https://172.16.10.102/', true) },
   ],
 })
 export class CardModule {}

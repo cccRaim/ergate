@@ -4,6 +4,7 @@ import * as path from 'path';
 import * as child_process from 'child_process';
 import * as GBK from 'gbk.js';
 import * as cheerio from 'cheerio';
+import * as urljoin from 'url-join';
 
 interface IRequest {
   get(user: User, url: string, config: any): Promise<any>;
@@ -62,7 +63,7 @@ export class Request implements IRequest {
       data = Object.assign({}, user.getNetState(), data);
     }
     if (!config.baseURL) {
-      url = path.join(this.baseURL, url);
+      url = urljoin(this.baseURL, url);
     }
     const headers = Object.assign({}, this.headers, config.headers);
     return new Promise((resolve, reject) => {
