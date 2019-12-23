@@ -51,6 +51,8 @@ export class ZfService {
         ...this.headers,
         ...headers,
         Cookie: user ? user.getCookieString() : null,
+        maxRedirects: 0,
+        validateStatus: status => status < 500,
       },
     });
     if (!config.baseURL) {
